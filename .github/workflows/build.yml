@@ -21,23 +21,36 @@ jobs:
       - name: Configurar Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
-      - name: Empaquetar app dentro de Android (Capacitor)
+      - name: Preparar y empaquetar app
         run: |
-          npm install -g @capacitor/cli @capacitor/core @capacitor/android
+          # 1. Crear package.json si no existe
+          npm init -y
+          
+          # 2. Instalar Capacitor localmente
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          
+          # 3. Asegurar carpeta www con tus archivos
+          mkdir -p www
+          if [ -f "index.html" ]; then
+            cp -r * www/ 2>/dev/null || true
+            rm -rf www/node_modules www/www www/.github 2>/dev/null || true
+          fi
+          
+          # 4. Inicializar y generar proyecto Android nativo
           npx cap init "Recolector de Cafe" "com.recolector.cafe" --web-dir www
           npx cap add android
-          npx cap copy android
+          npx cap sync android
 
-      - name: Compilar APK Nativo
+      - name: Compilar APK Android
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Guardar APK listo para descargar
+      - name: Subir APK para descargar
         uses: actions/upload-artifact@v4
         with:
           name: RecolectorCafe-APK
