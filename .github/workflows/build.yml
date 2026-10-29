@@ -16,30 +16,18 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '22'
 
-      - name: Configurar Java
-        uses: actions/setup-java@v4
+      - name: Configurar Java 21
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Preparar y empaquetar app
         run: |
-          # 1. Crear package.json si no existe
           npm init -y
-          
-          # 2. Instalar Capacitor localmente
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          
-          # 3. Asegurar carpeta www con tus archivos
-          mkdir -p www
-          if [ -f "index.html" ]; then
-            cp -r * www/ 2>/dev/null || true
-            rm -rf www/node_modules www/www www/.github 2>/dev/null || true
-          fi
-          
-          # 4. Inicializar y generar proyecto Android nativo
+          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
           npx cap init "Recolector de Cafe" "com.recolector.cafe" --web-dir www
           npx cap add android
           npx cap sync android
