@@ -24,12 +24,29 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Preparar y empaquetar app
+      - name: Preparar y empaquetar app con icono personalizado
         run: |
           npm init -y
-          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
+          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/assets
+          
+          # Crear carpeta assets con tu icono (busca el icono más grande que tengas en www)
+          mkdir -p assets
+          if [ -f "www/icons/icon-512.png" ]; then
+            cp www/icons/icon-512.png assets/icon-only.png
+            cp www/icons/icon-512.png assets/icon-foreground.png
+            cp www/icons/icon-512.png assets/icon.png
+          elif [ -f "www/icons/icon-192.png" ]; then
+            cp www/icons/icon-192.png assets/icon-only.png
+            cp www/icons/icon-192.png assets/icon-foreground.png
+            cp www/icons/icon-192.png assets/icon.png
+          fi
+
           npx cap init "Recolector de Cafe" "com.recolector.cafe" --web-dir www
           npx cap add android
+          
+          # Generar todos los tamaños de iconos para Android
+          npx @capacitor/assets generate --android || true
+          
           npx cap sync android
 
       - name: Compilar APK Android
