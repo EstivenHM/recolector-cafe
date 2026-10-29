@@ -1,0 +1,44 @@
+name: Compilar APK Autonomo
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar codigo del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Empaquetar app dentro de Android (Capacitor)
+        run: |
+          npm install -g @capacitor/cli @capacitor/core @capacitor/android
+          npx cap init "Recolector de Cafe" "com.recolector.cafe" --web-dir www
+          npx cap add android
+          npx cap copy android
+
+      - name: Compilar APK Nativo
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Guardar APK listo para descargar
+        uses: actions/upload-artifact@v4
+        with:
+          name: RecolectorCafe-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
