@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es-CR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Recolector Café - Control de Cajuelas</title>
+  
+  <!-- Configuración PWA & Android APK -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2D5A27">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Recolector Café">
+  
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Barra Superior (Header Móvil) -->
+    <header class="app-header">
+      <button id="btn-menu-toggle" class="header-icon-btn" aria-label="Abrir menú de navegación" title="Menú">
+        <svg viewBox="0 0 24 24" class="svg-icon">
+          <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="currentColor"/>
+        </svg>
+      </button>
+
+      <div class="header-title-box">
+        <span class="header-tag">Finca Cafetalera</span>
+        <h1 id="header-title" class="header-title">Usuarios</h1>
+      </div>
+
+      <div class="header-badge" id="online-indicator" title="Estado de conexión">
+        <span class="badge-dot"></span>
+        <span class="badge-text">Offline OK</span>
+      </div>
+    </header>
+
+    <!-- Menú Lateral Desplegable (Drawer) -->
+    <div id="drawer-overlay" class="drawer-overlay"></div>
+    <aside id="app-drawer" class="app-drawer">
+      <div class="drawer-header">
+        <div class="drawer-brand">
+          <div class="drawer-logo">
+            <svg viewBox="0 0 48 48" class="logo-svg">
+              <rect width="48" height="48" rx="12" fill="#2D5A27"/>
+              <path d="M12 24 L16 38 Q17 40 19 40 L29 40 Q31 40 32 38 L36 24 Z" fill="#D7CCC8"/>
+              <ellipse cx="20" cy="20" rx="6" ry="5" fill="#E53935"/>
+              <ellipse cx="28" cy="20" rx="6" ry="5" fill="#E53935"/>
+              <ellipse cx="24" cy="16" rx="7" ry="6" fill="#4E342E"/>
+              <circle cx="34" cy="34" r="8" fill="#FFB300"/>
+              <text x="34" y="38" font-size="10" font-weight="900" text-anchor="middle" fill="#3E2723">₡</text>
+            </svg>
+          </div>
+          <div class="drawer-title-wrap">
+            <h2 class="drawer-title">Recolector Café</h2>
+            <p class="drawer-subtitle">Control de Cajuelas & Pagos</p>
+          </div>
+        </div>
+        <button id="btn-close-drawer" class="drawer-close-btn" aria-label="Cerrar menú">
+          <svg viewBox="0 0 24 24" class="svg-icon">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="drawer-nav">
+        <ul>
+          <li>
+            <button class="nav-item active" data-view="vista-usuarios">
+              <span class="nav-icon">
+                <svg viewBox="0 0 24 24" class="svg-icon">
+                  <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="currentColor"/>
+                </svg>
+              </span>
+              <span class="nav-label">Usuarios</span>
+              <span class="nav-tag" id="drawer-users-count">0</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-view="vista-crear-usuario">
+              <span class="nav-icon">
+                <svg viewBox="0 0 24 24" class="svg-icon">
+                  <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+                </svg>
+              </span>
+              <span class="nav-label">Crear Usuario</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-view="vista-historial">
+              <span class="nav-icon">
+                <svg viewBox="0 0 24 24" class="svg-icon">
+                  <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" fill="currentColor"/>
+                </svg>
+              </span>
+              <span class="nav-label">Historial</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-view="vista-ajustes">
+              <span class="nav-icon">
+                <svg viewBox="0 0 24 24" class="svg-icon">
+                  <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/>
+                </svg>
+              </span>
+              <span class="nav-label">Ajustes</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="drawer-footer">
+        <div class="footer-price-chip">
+          <span class="chip-label">Precio Cajuela:</span>
+          <span class="chip-value" id="drawer-current-price">₡2,000</span>
+        </div>
+        <p class="drawer-version">Recolector Café v1.0 • PWA Offline</p>
+      </div>
+    </aside>
+
+    <!-- Contenido Principal Dinámico -->
+    <main class="app-main">
+
+      <!-- ========================================== -->
+      <!-- 1. VISTA: USUARIOS (Principal por defecto) -->
+      <!-- ========================================== -->
+      <section id="vista-usuarios" class="view-panel active">
+        <!-- Resumen de Semana -->
+        <div class="kpi-banner">
+          <div class="kpi-card">
+            <span class="kpi-label">Total Semana</span>
+            <span class="kpi-value highlight-cajuelas" id="kpi-total-cajuelas">0.00</span>
+            <span class="kpi-sub">Cajuelas</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Total a Pagar</span>
+            <span class="kpi-value highlight-monto" id="kpi-total-monto">₡0</span>
+            <span class="kpi-sub">Colones</span>
+          </div>
+        </div>
+
+        <!-- Barra de Controles de la Tabla -->
+        <div class="view-header-bar">
+          <div class="section-heading">
+            <h2 class="section-title">Control Semanal</h2>
+            <p class="section-desc">Cajuelas acumuladas en la semana actual</p>
+          </div>
+          <div class="action-buttons-wrap">
+            <button id="btn-manual-reset" class="btn-secondary btn-compact" title="Hacer cierre semanal y poner en 0 el contador de la semana">
+              <svg viewBox="0 0 24 24" class="btn-icon">
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="currentColor"/>
+              </svg>
+              <span>Reiniciar Semana</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro / Búsqueda Rápida -->
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" class="search-icon">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/>
+          </svg>
+          <input type="text" id="input-buscar-usuario" placeholder="Buscar recolector..." autocomplete="off">
+          <button id="btn-clear-search" class="clear-search-btn" style="display: none;" aria-label="Limpiar búsqueda">✕</button>
+        </div>
+
+        <!-- Contenedor de la Tabla Semanal -->
+        <div class="table-container shadow-card">
+          <table class="data-table" id="tabla-usuarios">
+            <thead>
+              <tr>
+                <th class="th-nombre">Nombre</th>
+                <th class="th-num">Cajuelas</th>
+                <th class="th-monto">Monto (₡)</th>
+                <th class="th-accion">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-usuarios">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+
+          <!-- Estado Vacío -->
+          <div id="usuarios-empty-state" class="empty-state" style="display: none;">
+            <div class="empty-icon">☕</div>
+            <h3>No hay recolectores activos</h3>
+            <p>Registra a tus cortadores de café para comenzar a registrar sus cajuelas.</p>
+            <button class="btn-primary" onclick="app.navigateTo('vista-crear-usuario')">
+              + Registrar Primer Recolector
+            </button>
+          </div>
+        </div>
+
+        <!-- Aviso informativo de corte de domingo -->
+        <div class="info-notice">
+          <svg viewBox="0 0 24 24" class="notice-icon">
+            <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor"/>
+          </svg>
+          <span id="txt-corte-info">Corte semanal automático configurado para cada domingo a las 00:00.</span>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- 2. VISTA: CREAR USUARIO                    -->
+      <!-- ========================================== -->
+      <section id="vista-crear-usuario" class="view-panel">
+        <div class="form-container shadow-card">
+          <div class="form-header">
+            <div class="form-icon-badge">
+              <svg viewBox="0 0 24 24" class="svg-icon">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="currentColor"/>
+              </svg>
+            </div>
+            <h2 class="form-title">Registrar Nuevo Recolector</h2>
+            <p class="form-desc">Ingresa el nombre completo o identificador del cortador de café.</p>
+          </div>
+
+          <form id="form-crear-usuario" onsubmit="return false;" novalidate>
+            <div class="form-group">
+              <label for="input-nombre-usuario">Nombre del Recolector:</label>
+              <div class="input-wrap">
+                <input 
+                  type="text" 
+                  id="input-nombre-usuario" 
+                  class="form-control" 
+                  placeholder="Ej: Juan Pérez" 
+                  autocomplete="off" 
+                  autocapitalize="words" 
+                  required
+                >
+              </div>
+              <small class="form-hint">No se permiten nombres repetidos ni vacíos.</small>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" id="btn-cancelar-crear" class="btn-secondary" onclick="app.navigateTo('vista-usuarios')">
+                Volver
+              </button>
+              <button type="submit" id="btn-guardar-usuario" class="btn-primary">
+                <svg viewBox="0 0 24 24" class="btn-icon">
+                  <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="currentColor"/>
+                </svg>
+                <span>Guardar</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Listado y gestión de recolectores ya existentes -->
+          <div class="registered-list-section">
+            <div class="list-heading-row">
+              <h4 class="subhead">Gestión de Recolectores (<span id="count-existentes">0</span>)</h4>
+              <span class="list-subhead-hint">Puedes editar su nombre o eliminarlos</span>
+            </div>
+            <div id="lista-gestion-usuarios" class="users-manage-list">
+              <!-- Lista interactiva de usuarios generada dinámicamente -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- 3. VISTA: HISTORIAL                        -->
+      <!-- ========================================== -->
+      <section id="vista-historial" class="view-panel">
+        <!-- Resumen Histórico -->
+        <div class="kpi-banner">
+          <div class="kpi-card">
+            <span class="kpi-label">Total Histórico</span>
+            <span class="kpi-value highlight-cajuelas" id="kpi-hist-cajuelas">0.00</span>
+            <span class="kpi-sub">Cajuelas Acumuladas</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Monto Acumulado</span>
+            <span class="kpi-value highlight-monto" id="kpi-hist-monto">₡0</span>
+            <span class="kpi-sub">Generado en total</span>
+          </div>
+        </div>
+
+        <div class="view-header-bar">
+          <div class="section-heading">
+            <h2 class="section-title">Historial Acumulado</h2>
+            <p class="section-desc">Acumulado general permanente de cajuelas y ganancias</p>
+          </div>
+          <div class="action-buttons-wrap">
+            <button id="btn-limpiar-historial" class="btn-danger btn-compact" title="Poner en 0 el acumulado histórico de todos">
+              <svg viewBox="0 0 24 24" class="btn-icon">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/>
+              </svg>
+              <span>Limpiar Historial</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla Historial -->
+        <div class="table-container shadow-card">
+          <table class="data-table" id="tabla-historial">
+            <thead>
+              <tr>
+                <th class="th-nombre">Nombre</th>
+                <th class="th-num">Total Cajuelas</th>
+                <th class="th-monto">Monto Acumulado (₡)</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-historial">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+
+          <div id="historial-empty-state" class="empty-state" style="display: none;">
+            <div class="empty-icon">📜</div>
+            <h3>Historial sin registros</h3>
+            <p>Los acumulados históricos aparecerán aquí conforme agregues cajuelas a los recolectores.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- 4. VISTA: AJUSTES                          -->
+      <!-- ========================================== -->
+      <section id="vista-ajustes" class="view-panel">
+        <div class="form-container shadow-card">
+          <div class="form-header">
+            <div class="form-icon-badge badge-settings">
+              <svg viewBox="0 0 24 24" class="svg-icon">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="currentColor"/>
+              </svg>
+            </div>
+            <h2 class="form-title">Configuración de Pagos</h2>
+            <p class="form-desc">Define el valor monetario a pagar por cada cajuela cosechada.</p>
+          </div>
+
+          <form id="form-ajustes" onsubmit="return false;" novalidate>
+            <div class="form-group">
+              <label for="input-precio-cajuela">Precio actual de cajuela (₡):</label>
+              <div class="input-currency-wrap">
+                <span class="currency-prefix">₡</span>
+                <input 
+                  type="text" 
+                  inputmode="numeric" 
+                  id="input-precio-cajuela" 
+                  class="form-control text-right" 
+                  placeholder="2000" 
+                  autocomplete="off"
+                  required
+                >
+              </div>
+              <small class="form-hint">Valor por defecto: ₡2,000. Los montos de la vista Usuarios e Historial se recalculan automáticamente.</small>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" id="btn-cancelar-ajustes" class="btn-secondary">
+                Cancelar
+              </button>
+              <button type="submit" id="btn-guardar-ajustes" class="btn-primary">
+                <svg viewBox="0 0 24 24" class="btn-icon">
+                  <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="currentColor"/>
+                </svg>
+                <span>Guardar</span>
+              </button>
+            </div>
+          </form>
+
+          <hr class="form-divider">
+
+          <div class="settings-info-card">
+            <h4 class="subhead">Información de la Aplicación</h4>
+            <ul class="info-list">
+              <li>
+                <strong>Corte de Semana:</strong> Domingos a las 00:00 (o manual con el botón "Reiniciar Semana").
+              </li>
+              <li>
+                <strong>Modo Offline:</strong> Todos los datos se guardan de forma segura en la memoria de este dispositivo (localStorage). No requiere conexión a internet para trabajar en el cafetal.
+              </li>
+              <li>
+                <strong>Listo para APK:</strong> Preparado para empaquetado con PWABuilder sin dependencias externas.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODAL: AÑADIR CAJUELAS                     -->
+    <!-- ========================================== -->
+    <div id="modal-cajuelas" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <span class="modal-pretitle">Registro de Recolección</span>
+            <h3 class="modal-title" id="modal-cajuelas-recolector">Añadir Cajuelas</h3>
+          </div>
+          <button id="btn-close-modal-cajuelas" class="modal-close-btn" aria-label="Cerrar modal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="current-stats-pill">
+            <span>Semana actual: <strong id="modal-cajuelas-actuales">0</strong> cajuelas</span>
+          </div>
+
+          <div class="form-group">
+            <label for="input-cajuelas-cantidad">Cantidad de cajuelas a sumar:</label>
+            <div class="input-wrap number-input-wrap">
+              <input 
+                type="text" 
+                id="input-cajuelas-cantidad" 
+                class="form-control form-control-lg text-center" 
+                placeholder="Ej: 18.25 o 0.5" 
+                inputmode="decimal" 
+                step="0.01" 
+                autocomplete="off"
+              >
+            </div>
+            <small class="form-hint">Soporta decimales con punto o coma (ej: 0.5, 1.75, 18.25).</small>
+          </div>
+
+          <!-- Botones rápidos de incremento para agilidad en campo -->
+          <div class="quick-add-wrap">
+            <span class="quick-label">Atajos rápidos:</span>
+            <div class="quick-buttons">
+              <button type="button" class="btn-quick" data-add="0.25">+0.25</button>
+              <button type="button" class="btn-quick" data-add="0.50">+0.50</button>
+              <button type="button" class="btn-quick" data-add="1.00">+1</button>
+              <button type="button" class="btn-quick" data-add="2.00">+2</button>
+              <button type="button" class="btn-quick" data-add="5.00">+5</button>
+            </div>
+          </div>
+
+          <!-- Vista previa de colones en vivo -->
+          <div class="calculation-preview">
+            <span class="calc-text">Equivalente a pagar:</span>
+            <span class="calc-monto" id="preview-colones">₡0</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-cancelar-cajuelas" class="btn-secondary">Cancelar</button>
+          <button type="button" id="btn-confirmar-cajuelas" class="btn-primary">
+            <svg viewBox="0 0 24 24" class="btn-icon">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/>
+            </svg>
+            <span>Añadir</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL: EDITAR USUARIO                      -->
+    <!-- ========================================== -->
+    <div id="modal-editar-usuario" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <span class="modal-pretitle">Modificar Recolector</span>
+            <h3 class="modal-title">Editar Nombre</h3>
+          </div>
+          <button id="btn-close-modal-editar" class="modal-close-btn" aria-label="Cerrar modal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="input-editar-nombre">Nuevo Nombre del Recolector:</label>
+            <div class="input-wrap">
+              <input 
+                type="text" 
+                id="input-editar-nombre" 
+                class="form-control" 
+                placeholder="Nombre del recolector" 
+                autocomplete="off" 
+                autocapitalize="words" 
+                required
+              >
+            </div>
+            <small class="form-hint">Se actualizará su nombre en la vista de Usuarios e Historial conservando sus registros.</small>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-cancelar-editar" class="btn-secondary">Cancelar</button>
+          <button type="button" id="btn-confirmar-editar" class="btn-primary">
+            <svg viewBox="0 0 24 24" class="btn-icon">
+              <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="currentColor"/>
+            </svg>
+            <span>Guardar Cambios</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL GENÉRICO DE CONFIRMACIÓN             -->
+    <!-- ========================================== -->
+    <div id="modal-confirm" class="modal-backdrop">
+      <div class="modal-card modal-confirm-card">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modal-confirm-title">Confirmar Acción</h3>
+        </div>
+        <div class="modal-body">
+          <p id="modal-confirm-message" class="confirm-message">¿Estás seguro de continuar?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btn-confirm-cancel" class="btn-secondary">Cancelar</button>
+          <button type="button" id="btn-confirm-accept" class="btn-danger">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- CONTENEDOR DE TOASTS NOTIFICACIONES        -->
+    <!-- ========================================== -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+</body>
+</html>
+
